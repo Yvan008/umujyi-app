@@ -1,0 +1,6 @@
+{
+  "name": "Umujyi Rwanda - Premium Food Delivery",
+  "description": "Fast, fresh, and chef-prepared meals delivered across Kigali with instant ordering, guest checkout, and MTN/Airtel Mobile Money support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
