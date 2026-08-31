@@ -38,7 +38,7 @@ export const CheckoutView: React.FC = () => {
   const [sector, setSector] = useState('Kimihurura');
   const [streetAddress, setStreetAddress] = useState('');
   const [pickupLocation, setPickupLocation] = useState(
-    deliverySettings.pickupLocations[0]?.name || 'Umujyi Kimihurura Flagship Hub'
+    deliverySettings.pickupLocations[0]?.name || ''
   );
   const [instructions, setInstructions] = useState('');
 
@@ -51,8 +51,8 @@ export const CheckoutView: React.FC = () => {
   const [cardCvc, setCardCvc] = useState('');
   const [cardHolder, setCardHolder] = useState('');
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [checkoutState, setCheckoutState] = useState<'idle' | 'initializing' | 'processing' | 'success' | 'failed'>('idle');
+  const [paymentMessage, setPaymentMessage] = useState('');
 
   // Kigali Sectors Map
   const kigaliSectors: Record<string, string[]> = {
@@ -120,21 +120,10 @@ export const CheckoutView: React.FC = () => {
       return;
     }
 
-    setIsSubmitting(true);
+    setCheckoutState('initializing');
+    setPaymentMessage('Initializing payment...');
 
     try {
-      // Realistic payment processing & abstraction handshake
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-
-      const paymentReference =
-        paymentMethod === 'MOMO'
-          ? `MOMO-${Date.now().toString().slice(-6)}`
-          : paymentMethod === 'AIRTEL'
-          ? `AIRTEL-${Date.now().toString().slice(-6)}`
-          : paymentMethod === 'CARD'
-          ? `CARD-AUTH-${Date.now().toString().slice(-6)}`
-          : `CASH-ON-DELIVERY`;
-
       const orderItems = cart.map((item) => ({
         productId: item.product.id,
         name: item.product.name,
@@ -143,7 +132,9 @@ export const CheckoutView: React.FC = () => {
         image: item.product.uploadedImage || item.product.defaultImage,
       }));
 
-      await createOrder({
+      // Call our StoreContext createOrder which now sets it up as PENDING 
+      // without immediately redirecting.
+      const newOrder = await createOrder({
         customerName: fullName.trim(),
         phone: phone.trim(),
         email: email.trim() || undefined,
@@ -163,20 +154,51 @@ export const CheckoutView: React.FC = () => {
         total: grandTotal,
         status: 'PENDING',
         paymentMethod,
-        paymentStatus: paymentMethod === 'CASH' ? 'UNPAID' : 'PAID',
-        paymentReference,
+        paymentStatus: 'PENDING',
+        paymentReference: '', // Will be updated via our simulated backend
         estimatedDeliveryTime:
           deliveryMethod === 'DELIVERY'
             ? `${deliverySettings.defaultEstimatedDeliveryMinutes} - ${deliverySettings.defaultEstimatedDeliveryMinutes + 15} mins`
             : 'Ready for pickup in 20 mins',
       });
 
-      showToast('Order placed successfully!', 'success');
+      if (paymentMethod === 'CASH') {
+        // Cash on delivery completes immediately
+        setCheckoutState('success');
+        showToast('Order placed successfully!', 'success');
+        setActiveTab('confirmation');
+        return;
+      }
+
+      setCheckoutState('processing');
+      setPaymentMessage('Processing your payment... Please check your phone for the prompt.');
+      
+      // Simulate backend payment initialization and verification delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // For demonstration in local React SPA, simulate verification:
+      // Real app would poll a `verifyPayment` API endpoint here or listen for a webhook.
+      
+      const isSuccess = Math.random() > 0.1; // 90% success rate
+      
+      if (isSuccess) {
+        setCheckoutState('success');
+        setPaymentMessage('Payment confirmed');
+        // Update order status in store
+        useStore.getState().updateOrderStatus(newOrder.id, 'CONFIRMED', 'PAID');
+        showToast('Payment successful!', 'success');
+        setActiveTab('confirmation');
+      } else {
+        setCheckoutState('failed');
+        setPaymentMessage('Payment could not be completed.');
+        useStore.getState().updateOrderStatus(newOrder.id, 'PENDING', 'FAILED');
+      }
+
     } catch (err) {
       console.error(err);
+      setCheckoutState('failed');
+      setPaymentMessage('There was an error communicating with the payment provider.');
       showToast('There was an issue creating your order. Please try again.', 'error');
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -656,13 +678,27 @@ export const CheckoutView: React.FC = () => {
             <div className="block lg:hidden">
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-[#F51B55] hover:bg-[#d41446] text-white font-extrabold text-lg py-4 rounded-2xl shadow-xl flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-75"
+                disabled={checkoutState !== 'idle' && checkoutState !== 'failed'}
+                className={`w-full text-white font-extrabold text-lg py-4 rounded-2xl shadow-xl flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-75 ${
+                  checkoutState === 'success' ? 'bg-emerald-500' :
+                  checkoutState === 'failed' ? 'bg-red-500' :
+                  'bg-[#F51B55] hover:bg-[#d41446]'
+                }`}
               >
-                {isSubmitting ? (
+                {checkoutState === 'initializing' || checkoutState === 'processing' ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Processing Order...</span>
+                    <span className="text-sm">{paymentMessage || 'Processing...'}</span>
+                  </>
+                ) : checkoutState === 'success' ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Payment Confirmed</span>
+                  </>
+                ) : checkoutState === 'failed' ? (
+                  <>
+                    <AlertCircle className="w-5 h-5" />
+                    <span>Payment Failed - Try Again</span>
                   </>
                 ) : (
                   <span>PLACE ORDER • RWF {grandTotal.toLocaleString()}</span>
@@ -740,13 +776,27 @@ export const CheckoutView: React.FC = () => {
               <button
                 type="button"
                 onClick={handlePlaceOrder}
-                disabled={isSubmitting}
-                className="w-full bg-[#F51B55] hover:bg-[#d41446] text-white font-extrabold text-base py-4 rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-75"
+                disabled={checkoutState !== 'idle' && checkoutState !== 'failed'}
+                className={`w-full text-white font-extrabold text-base py-4 rounded-2xl shadow-lg shadow-pink-500/25 flex items-center justify-center gap-2 active:scale-98 transition-all disabled:opacity-75 ${
+                  checkoutState === 'success' ? 'bg-emerald-500 shadow-emerald-500/25' :
+                  checkoutState === 'failed' ? 'bg-red-500 shadow-red-500/25' :
+                  'bg-[#F51B55] hover:bg-[#d41446]'
+                }`}
               >
-                {isSubmitting ? (
+                {checkoutState === 'initializing' || checkoutState === 'processing' ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Processing Order...</span>
+                    <span className="text-sm">{paymentMessage || 'Processing...'}</span>
+                  </>
+                ) : checkoutState === 'success' ? (
+                  <>
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span>Payment Confirmed</span>
+                  </>
+                ) : checkoutState === 'failed' ? (
+                  <>
+                    <AlertCircle className="w-5 h-5" />
+                    <span>Payment Failed - Try Again</span>
                   </>
                 ) : (
                   <span>PLACE ORDER • RWF {grandTotal.toLocaleString()}</span>

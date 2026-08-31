@@ -514,6 +514,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Orders Operations
   const createOrder = async (orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'>): Promise<Order> => {
+    // For cash on delivery, process directly. For digital payments, process via server.
     const orderNumber = `ZST-${Math.floor(10000 + Math.random() * 90000)}`;
     const newOrder: Order = {
       ...orderData,
@@ -526,7 +527,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setLastConfirmedOrder(newOrder);
     setActiveTrackingOrder(newOrder);
     clearCart();
-    setActiveTab('confirmation');
+    
+    // Do not redirect to confirmation immediately for digital payments
+    if (orderData.paymentMethod === 'CASH') {
+      setActiveTab('confirmation');
+    }
     return newOrder;
   };
 

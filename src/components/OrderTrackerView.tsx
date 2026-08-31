@@ -327,7 +327,7 @@ export const OrderTrackerView: React.FC = () => {
                     </span>
                   </h3>
                   <p className="text-xs text-neutral-500 mb-4">
-                    Dispatching from Umujyi Kimihurura Kitchen directly to {order.sector || 'your location'}, Kigali.
+                    Dispatching directly to {order.sector || 'your location'}, Kigali.
                   </p>
                 </div>
 

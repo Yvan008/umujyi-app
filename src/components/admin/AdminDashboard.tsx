@@ -99,6 +99,9 @@ export const AdminDashboard: React.FC = () => {
   // Inline Price Edit state
   const [editingPriceId, setEditingPriceId] = useState<string | null>(null);
   const [newPriceValue, setNewPriceValue] = useState<number>(0);
+  
+  // Delete Product state
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
 
   // Category Modal State
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -222,6 +225,37 @@ export const AdminDashboard: React.FC = () => {
       updateProductPrice(id, newPriceValue);
     }
     setEditingPriceId(null);
+  };
+
+  // Image Upload for Product Form
+  const [isUploadingFormImage, setIsUploadingFormImage] = useState(false);
+
+  const handleFormImageUpload = async (file: File) => {
+    setIsUploadingFormImage(true);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        if (e.target?.result) {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ADMIN_SECRET_TOKEN' },
+            body: JSON.stringify({ imageBase64: e.target.result })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProductForm({ ...productForm, uploadedImage: data.url });
+            showToast('Image uploaded successfully', 'success');
+          } else {
+            showToast('Image upload failed', 'error');
+          }
+          setIsUploadingFormImage(false);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      showToast('Error uploading image', 'error');
+      setIsUploadingFormImage(false);
+    }
   };
 
   const handleProductImageUpload = (file: File) => {
@@ -796,11 +830,7 @@ export const AdminDashboard: React.FC = () => {
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
-                                  onClick={() => {
-                                    if (confirm(`Are you sure you want to delete ${prod.name}?`)) {
-                                      deleteProduct(prod.id);
-                                    }
-                                  }}
+                                  onClick={() => setProductToDelete(prod)}
                                   className="p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                                   title="Delete product"
                                 >
@@ -1439,25 +1469,92 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">Standard Studio Photo URL</label>
+                <label className="block text-xs font-bold text-neutral-700 mb-2">Product Image (Upload or Drag & Drop)</label>
+                
+                {productForm.uploadedImage ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-neutral-200">
+                    <img 
+                      src={productForm.uploadedImage} 
+                      alt="Product preview" 
+                      className="w-full h-40 object-cover"
+                    />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity gap-3">
+                       <button
+                         type="button"
+                         onClick={() => {
+                           const el = document.getElementById('productImageUpload');
+                           if (el) el.click();
+                         }}
+                         className="px-4 py-2 bg-white text-black font-bold text-xs rounded-xl hover:bg-neutral-100"
+                       >
+                         Replace Image
+                       </button>
+                       <button
+                         type="button"
+                         onClick={() => {
+                           if (window.confirm("Are you sure you want to remove this product image?")) {
+                             setProductForm({ ...productForm, uploadedImage: '' });
+                           }
+                         }}
+                         className="px-4 py-2 bg-[#F51B55] text-white font-bold text-xs rounded-xl hover:bg-[#d41446]"
+                       >
+                         Remove Image
+                       </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div 
+                    className="w-full h-40 border-2 border-dashed border-neutral-300 rounded-2xl flex flex-col items-center justify-center bg-neutral-50 hover:bg-neutral-100 transition-colors relative"
+                    onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleFormImageUpload(e.dataTransfer.files[0]);
+                      }
+                    }}
+                  >
+                    {isUploadingFormImage ? (
+                      <div className="flex flex-col items-center gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-[#F51B55]" />
+                        <span className="text-xs text-neutral-500 font-bold">Uploading...</span>
+                      </div>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-8 h-8 text-neutral-400 mb-2" />
+                        <span className="text-sm font-bold text-neutral-600">Drag & Drop Image Here</span>
+                        <span className="text-xs text-neutral-400 mt-1 mb-3">OR</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const el = document.getElementById('productImageUpload');
+                            if (el) el.click();
+                          }}
+                          className="px-4 py-2 bg-white border border-neutral-200 text-neutral-700 font-bold text-xs rounded-xl shadow-xs hover:bg-neutral-50"
+                        >
+                          CHOOSE IMAGE
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+                
                 <input
-                  type="url"
-                  value={productForm.defaultImage}
-                  onChange={(e) => setProductForm({ ...productForm, defaultImage: e.target.value })}
-                  required
-                  className="w-full p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-xs"
+                  id="productImageUpload"
+                  type="file"
+                  accept="image/jpeg, image/png, image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      handleFormImageUpload(e.target.files[0]);
+                    }
+                  }}
                 />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">Custom Photo URL (Optional override)</label>
-                <input
-                  type="url"
-                  value={productForm.uploadedImage}
-                  onChange={(e) => setProductForm({ ...productForm, uploadedImage: e.target.value })}
-                  placeholder="Leave empty to use standard studio photo"
-                  className="w-full p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-xs"
-                />
+                {!productForm.uploadedImage && (
+                  <p className="text-[10px] text-neutral-500 mt-2">
+                    <span className="text-amber-600 font-bold">Using AI Default Fallback Image.</span> Upload a real photo to override.
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
@@ -1654,6 +1751,38 @@ export const AdminDashboard: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Product Confirmation Modal */}
+      {productToDelete && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 text-center">
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-2 text-red-500">
+              <Trash2 className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-black text-[#111111]">Delete Product?</h3>
+            <p className="text-sm text-neutral-500">
+              Are you sure you want to delete <span className="font-bold text-[#111111]">"{productToDelete.name}"</span>? 
+              This action cannot be easily undone.
+            </p>
+            <div className="flex gap-3 pt-4">
+              <button
+                onClick={() => setProductToDelete(null)}
+                className="flex-1 px-4 py-3 bg-neutral-100 hover:bg-neutral-200 rounded-xl text-sm font-bold text-neutral-700 transition-colors"
+              >
+                CANCEL
+              </button>
+              <button
+                onClick={() => {
+                  deleteProduct(productToDelete.id);
+                  setProductToDelete(null);
+                }}
+                className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 rounded-xl text-sm font-bold text-white transition-colors shadow-lg shadow-red-500/25"
+              >
+                DELETE PRODUCT
+              </button>
+            </div>
           </div>
         </div>
       )}

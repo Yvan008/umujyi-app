@@ -1,10 +1,10 @@
 import { Product, Category, Offer, DeliverySettings, BusinessSettings, Order } from '../types';
 
-import heroImg from '../assets/images/hero_food_platter_1788175139347.jpg';
-import chickenImg from '../assets/images/crispy_fried_chicken_1788175158708.jpg';
-import burgerImg from '../assets/images/artisan_burger_1788175177081.jpg';
-import wrapImg from '../assets/images/grilled_chicken_wrap_1788175189755.jpg';
-import pizzaImg from '../assets/images/woodfired_pizza_1788175205072.jpg';
+const heroImg = '/images/hero_food_platter_1788175139347.jpg';
+const chickenImg = '/images/crispy_fried_chicken_1788175158708.jpg';
+const burgerImg = '/images/artisan_burger_1788175177081.jpg';
+const wrapImg = '/images/grilled_chicken_wrap_1788175189755.jpg';
+const pizzaImg = '/images/woodfired_pizza_1788175205072.jpg';
 
 export { heroImg, chickenImg, burgerImg, wrapImg, pizzaImg };
 

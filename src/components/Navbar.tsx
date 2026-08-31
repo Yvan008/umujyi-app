@@ -20,6 +20,7 @@ export const Navbar: React.FC = () => {
     searchQuery,
     setSearchQuery,
     businessSettings,
+    deliverySettings,
     products,
     setSelectedCategory,
   } = useStore();
@@ -62,7 +63,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5 font-medium">
               <MapPin className="w-3.5 h-3.5 text-[#F51B55]" />
-              <span>Kigali, Rwanda (Kimihurura • Nyarutarama • Downtown)</span>
+              <span>{businessSettings.city} {deliverySettings.pickupLocations?.filter(b => b.isActive).length ? `• ${deliverySettings.pickupLocations.filter(b => b.isActive).length} Locations` : ''}</span>
             </span>
             <span className="hidden md:flex items-center gap-1.5 font-medium text-neutral-400">
               <Clock className="w-3.5 h-3.5 text-[#F51B55]" />
@@ -308,7 +309,7 @@ export const Navbar: React.FC = () => {
               </p>
               <p className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-[#F51B55]" />
-                HQ: Kimihurura, Kigali
+                HQ: {businessSettings.city}
               </p>
             </div>
           </div>
