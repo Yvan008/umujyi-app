@@ -623,6 +623,7 @@ export const INITIAL_BUSINESS_SETTINGS: BusinessSettings = {
   name: 'UMUJYI RWANDA',
   tagline: 'GOOD FOOD. DELIVERED FAST.',
   logoText: 'UMUJYI.',
+  logoUrl: null,
   phone: '+250 788 123 456',
   supportEmail: 'orders@umujyi.rw',
   address: 'KG 674 St, Kimihurura, Kigali, Rwanda',

@@ -14,7 +14,7 @@ import {
   MessageSquare,
   Sparkles,
   AlertCircle,
-  Play,
+  RefreshCw,
   RotateCcw,
 } from 'lucide-react';
 
@@ -122,7 +122,7 @@ export const OrderTrackerView: React.FC = () => {
                 TRACK YOUR ORDER
               </h1>
               <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-                Enter your order tracking ID (e.g. ZST-88219) to watch live updates.
+                Enter your order tracking ID (e.g. UMJ-90211) to watch live updates.
               </p>
             </div>
 
@@ -137,7 +137,7 @@ export const OrderTrackerView: React.FC = () => {
                     setSearchId(e.target.value);
                     setSearchError('');
                   }}
-                  placeholder="Order ID (e.g. ZST-88219)"
+                  placeholder="Order ID (e.g. UMJ-90211)"
                   className="w-full pl-9 pr-4 py-3 bg-neutral-100 rounded-xl border border-neutral-200 text-xs sm:text-sm font-mono uppercase focus:outline-none focus:border-[#F51B55]"
                 />
               </div>
@@ -184,14 +184,19 @@ export const OrderTrackerView: React.FC = () => {
                     </span>
                   </div>
 
-                  {/* Demo status simulation button */}
+                  {/* Live order status refresh button */}
                   <button
-                    onClick={handleAdvanceSimulation}
-                    title="Advance status for demonstration"
-                    className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
+                    onClick={() => {
+                      if (order) {
+                        trackOrderById(order.id);
+                        showToast('Live order status refreshed', 'info');
+                      }
+                    }}
+                    title="Refresh live status"
+                    className="p-2.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <Play className="w-4 h-4 text-[#F51B55]" />
-                    <span className="hidden sm:inline">Simulate Next Step</span>
+                    <RefreshCw className="w-4 h-4 text-[#F51B55]" />
+                    <span className="hidden sm:inline">Refresh</span>
                   </button>
                 </div>
               </div>

@@ -9,7 +9,6 @@ import {
   Phone,
   Clock,
   ChevronRight,
-  Flame,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -99,20 +98,24 @@ export const Navbar: React.FC = () => {
                 setActiveTab('home');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="flex items-center gap-2 group text-left"
-              aria-label="Umujyi Rwanda Home"
+              className="flex items-center gap-2 group text-left cursor-pointer"
+              aria-label={`${businessSettings.name} Home`}
             >
-              <div className="w-9 h-9 rounded-xl bg-[#F51B55] flex items-center justify-center text-white shadow-md shadow-pink-500/20 group-hover:scale-105 transition-transform">
-                <Flame className="w-5 h-5 fill-white" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight text-[#111111] leading-none">
-                  UMUJYI<span className="text-[#F51B55]">.</span>
+              {businessSettings.logoUrl ? (
+                <img
+                  src={businessSettings.logoUrl}
+                  alt={businessSettings.name}
+                  className="h-10 max-w-[160px] object-contain"
+                />
+              ) : (
+                <span className="text-2xl sm:text-3xl font-black tracking-tight text-[#111111] leading-none transition-colors group-hover:text-[#F51B55]">
+                  {businessSettings.logoText ? (
+                    businessSettings.logoText
+                  ) : (
+                    <>UMUJYI<span className="text-[#F51B55]">.</span></>
+                  )}
                 </span>
-                <span className="text-[9px] font-extrabold tracking-widest text-neutral-400 uppercase">
-                  RWANDA
-                </span>
-              </div>
+              )}
             </button>
 
             {/* Desktop Navigation Links */}

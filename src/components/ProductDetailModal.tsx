@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
 import { useStore } from '../context/StoreContext';
-import { X, Plus, Minus, Flame, Clock, Sparkles, Check } from 'lucide-react';
+import { X, Plus, Minus, Clock, Sparkles, Check } from 'lucide-react';
 
 interface ProductDetailModalProps {
   product: Product | null;

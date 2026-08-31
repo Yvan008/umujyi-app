@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
 import { Product, Order, OrderStatus, Category, Offer, PaymentStatus } from '../../types';
+import { AdminBrandingTab } from './AdminBrandingTab';
+import { AdminBranchesTab } from './AdminBranchesTab';
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -24,11 +26,13 @@ import {
   DollarSign,
   Package,
   Clock,
-  Flame,
   Phone,
   MapPin,
   AlertCircle,
   Sparkles,
+  Building2,
+  Palette,
+  Store,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -71,7 +75,7 @@ export const AdminDashboard: React.FC = () => {
   } = useStore();
 
   const [activeSubTab, setActiveSubTab] = useState<
-    'overview' | 'products' | 'images' | 'orders' | 'categories' | 'offers' | 'settings'
+    'overview' | 'products' | 'images' | 'orders' | 'categories' | 'offers' | 'branches' | 'branding' | 'settings'
   >('overview');
 
   // Product Modal State
@@ -220,7 +224,7 @@ export const AdminDashboard: React.FC = () => {
     setEditingPriceId(null);
   };
 
-  const handleFileUploadSimulation = (file: File) => {
+  const handleProductImageUpload = (file: File) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result && selectedImageProductId) {
@@ -255,6 +259,12 @@ export const AdminDashboard: React.FC = () => {
 
   const selectedImageProduct = products.find((p) => p.id === selectedImageProductId) || products[0];
 
+  const [quickPhone, setQuickPhone] = useState(businessSettings.phone);
+
+  React.useEffect(() => {
+    setQuickPhone(businessSettings.phone);
+  }, [businessSettings.phone]);
+
   const filteredOrders = orders.filter((o) => {
     const matchesStatus = orderStatusFilter === 'ALL' || o.status === orderStatusFilter;
     const matchesSearch =
@@ -270,12 +280,19 @@ export const AdminDashboard: React.FC = () => {
       {/* Top Admin Navbar */}
       <header className="bg-[#111111] text-white border-b border-neutral-800 sticky top-0 z-40 px-4 sm:px-8 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#F51B55] flex items-center justify-center text-white font-black text-sm shadow-md">
-              <Flame className="w-4 h-4 fill-white" />
-            </div>
+          <div className="flex items-center gap-3">
+            {businessSettings.logoUrl ? (
+              <img
+                src={businessSettings.logoUrl}
+                alt={businessSettings.name}
+                className="h-8 max-w-[120px] object-contain"
+              />
+            ) : null}
             <span className="font-black text-lg tracking-tight">
-              UMUJYI <span className="text-[#F51B55] text-xs uppercase px-2 py-0.5 bg-neutral-800 rounded-md ml-1">Admin Portal</span>
+              {businessSettings.logoText || businessSettings.name || 'UMUJYI'}{' '}
+              <span className="text-[#F51B55] text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-neutral-800 rounded-md ml-1">
+                Operations
+              </span>
             </span>
           </div>
         </div>
@@ -283,7 +300,7 @@ export const AdminDashboard: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveTab('home')}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xs font-bold text-neutral-200 transition-colors"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-xl text-xs font-bold text-neutral-200 transition-colors cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5 text-[#F51B55]" />
             <span>View Live Storefront</span>
@@ -301,7 +318,7 @@ export const AdminDashboard: React.FC = () => {
             </div>
             <button
               onClick={logoutAdmin}
-              className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors ml-1"
+              className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors ml-1 cursor-pointer"
               title="Logout"
               aria-label="Logout"
             >
@@ -318,12 +335,14 @@ export const AdminDashboard: React.FC = () => {
           <div className="space-y-1">
             {[
               { id: 'overview', label: 'Overview & KPIs', icon: LayoutDashboard },
-              { id: 'products', label: 'Products & Prices', icon: UtensilsCrossed, badge: products.length },
-              { id: 'images', label: 'Image Override', icon: ImageIcon },
               { id: 'orders', label: 'Live Orders', icon: ShoppingBag, badge: activeOrdersCount },
+              { id: 'products', label: 'Products & Prices', icon: UtensilsCrossed, badge: products.length },
+              { id: 'images', label: 'Photo Overrides', icon: ImageIcon },
               { id: 'categories', label: 'Menu Categories', icon: Tags, badge: categories.length },
               { id: 'offers', label: 'Promos & Offers', icon: Percent, badge: offers.length },
-              { id: 'settings', label: 'Store & Delivery', icon: Settings },
+              { id: 'branches', label: 'Branches & Hubs', icon: Building2, badge: deliverySettings.pickupLocations?.length || 0 },
+              { id: 'branding', label: 'Logo & Branding', icon: Palette },
+              { id: 'settings', label: 'Delivery & Fees', icon: Settings },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeSubTab === tab.id;
@@ -332,7 +351,7 @@ export const AdminDashboard: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveSubTab(tab.id as any)}
-                  className={`w-full flex items-center justify-between p-3 rounded-2xl font-bold text-xs sm:text-sm transition-all ${
+                  className={`w-full flex items-center justify-between p-3 rounded-2xl font-bold text-xs sm:text-sm transition-all cursor-pointer ${
                     isActive
                       ? 'bg-[#111111] text-white shadow-md'
                       : 'text-neutral-600 hover:bg-neutral-100 hover:text-black'
@@ -360,17 +379,17 @@ export const AdminDashboard: React.FC = () => {
             <p className="text-[11px] text-neutral-400 uppercase tracking-wider font-bold mb-2">Quick Actions</p>
             <button
               onClick={handleOpenAddProduct}
-              className="w-full py-2.5 px-3 bg-pink-50 text-[#F51B55] hover:bg-pink-100 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors mb-2"
+              className="w-full py-2.5 px-3 bg-pink-50 text-[#F51B55] hover:bg-pink-100 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors mb-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Add New Dish</span>
             </button>
             <button
-              onClick={resetToDefaultProducts}
-              className="w-full py-2 px-3 bg-neutral-100 text-neutral-600 hover:bg-neutral-200 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5 transition-colors"
+              onClick={() => setActiveSubTab('branding')}
+              className="w-full py-2 px-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
             >
-              <RefreshCw className="w-3.5 h-3.5" />
-              <span>Reset Demo Seed</span>
+              <Palette className="w-3.5 h-3.5 text-[#F51B55]" />
+              <span>Update Brand Logo</span>
             </button>
           </div>
         </aside>
@@ -448,6 +467,95 @@ export const AdminDashboard: React.FC = () => {
                   <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
                     <Clock className="w-6 h-6" />
                   </div>
+                </div>
+              </div>
+
+              {/* Quick Brand Logo & Phone Number Controls */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Phone Hotline Quick Control */}
+                <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs flex flex-col justify-between space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-pink-50 text-[#F51B55] flex items-center justify-center shrink-0">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-black text-[#111111] uppercase tracking-wider">
+                          Customer Phone Hotline
+                        </h4>
+                        <p className="text-[11px] text-neutral-500">Live ordering & support phone number</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveSubTab('branding')}
+                      className="text-[11px] font-bold text-[#F51B55] hover:underline cursor-pointer"
+                    >
+                      Full Settings →
+                    </button>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <input
+                      type="tel"
+                      value={quickPhone}
+                      onChange={(e) => setQuickPhone(e.target.value)}
+                      placeholder="+250 788 123 456"
+                      className="flex-grow p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-xs font-bold text-[#111111] focus:outline-none focus:border-[#F51B55]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateBusinessSettings({
+                          phone: quickPhone.trim(),
+                          socialLinks: {
+                            ...businessSettings.socialLinks,
+                            whatsapp: businessSettings.socialLinks?.whatsapp || quickPhone.trim(),
+                          },
+                        });
+                        showToast('Customer hotline updated live across website', 'success');
+                      }}
+                      className="px-4 py-2.5 bg-[#111111] hover:bg-neutral-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0"
+                    >
+                      Save Phone
+                    </button>
+                  </div>
+                </div>
+
+                {/* Logo Quick Control */}
+                <div className="bg-white p-5 rounded-3xl border border-neutral-200/80 shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 px-3 rounded-2xl bg-neutral-50 border border-neutral-200/80 flex items-center justify-center overflow-hidden shrink-0">
+                      {businessSettings.logoUrl ? (
+                        <img
+                          src={businessSettings.logoUrl}
+                          alt={businessSettings.name}
+                          className="h-8 max-w-[100px] object-contain"
+                        />
+                      ) : (
+                        <span className="font-black text-sm tracking-tight text-[#111111]">
+                          {businessSettings.logoText || 'UMUJYI'}
+                          <span className="text-[#F51B55]">.</span>
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black text-[#111111] uppercase tracking-wider">
+                        Restaurant Brand Logo
+                      </h4>
+                      <p className="text-[11px] text-neutral-500 mt-0.5">
+                        {businessSettings.logoUrl ? 'Custom Image Logo Active' : 'Typography Brandmark Active'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveSubTab('branding')}
+                    className="px-4 py-2.5 bg-pink-50 hover:bg-pink-100 text-[#F51B55] text-xs font-bold rounded-xl transition-colors cursor-pointer shrink-0"
+                  >
+                    Manage Logo
+                  </button>
                 </div>
               </div>
 
@@ -661,7 +769,7 @@ export const AdminDashboard: React.FC = () => {
                                     : 'bg-neutral-100 text-neutral-600'
                                 }`}
                               >
-                                {isCustom ? 'Custom Upload' : 'AI Default'}
+                                {isCustom ? 'Custom Upload' : 'Standard Photo'}
                               </span>
                             </td>
 
@@ -714,9 +822,9 @@ export const AdminDashboard: React.FC = () => {
           {activeSubTab === 'images' && (
             <div className="space-y-6 animate-in fade-in duration-200">
               <div className="bg-white p-6 rounded-3xl border border-neutral-200/80 shadow-xs">
-                <h2 className="text-xl font-black text-[#111111]">Image Management & Overrides</h2>
+                <h2 className="text-xl font-black text-[#111111]">Food Photography & Image Overrides</h2>
                 <p className="text-xs text-neutral-500 mt-1">
-                  Upload custom food photos. If removed, the system automatically falls back to high-resolution AI food photography.
+                  Upload custom kitchen photos. If removed, the system seamlessly displays the high-resolution standard studio photography.
                 </p>
               </div>
 
@@ -724,7 +832,7 @@ export const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                 <div className="md:col-span-4 bg-white p-4 rounded-3xl border border-neutral-200/80 shadow-xs space-y-2 max-h-[600px] overflow-y-auto">
                   <p className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2 px-2">
-                    Select Product ({products.length})
+                    Select Dish ({products.length})
                   </p>
                   {products.map((p) => (
                     <button
@@ -748,7 +856,7 @@ export const AdminDashboard: React.FC = () => {
                       <div className="overflow-hidden">
                         <p className="text-xs font-bold truncate">{p.name}</p>
                         <p className="text-[10px] text-neutral-400">
-                          {p.uploadedImage ? 'Custom Image' : 'AI Default'}
+                          {p.uploadedImage ? 'Custom Photo' : 'Standard Photo'}
                         </p>
                       </div>
                     </button>
@@ -766,20 +874,20 @@ export const AdminDashboard: React.FC = () => {
                       {selectedImageProduct.uploadedImage && (
                         <button
                           onClick={() => removeProductImage(selectedImageProduct.id)}
-                          className="px-3.5 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
+                          className="px-3.5 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                          <span>Revert to Default AI Image</span>
+                          <span>Revert to Standard Photo</span>
                         </button>
                       )}
                     </div>
 
                     {/* Side-by-side Dual Image comparison */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {/* AI Default Image */}
+                      {/* Standard Studio Image */}
                       <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
                         <span className="text-xs font-bold text-neutral-500 uppercase block mb-2">
-                          Default AI Image
+                          Standard Studio Photo
                         </span>
                         <div className="aspect-[4/3] rounded-xl overflow-hidden bg-neutral-900">
                           <img
@@ -813,7 +921,7 @@ export const AdminDashboard: React.FC = () => {
                           />
                         </div>
                         <p className="text-[11px] text-neutral-500 mt-2 text-center font-medium">
-                          {selectedImageProduct.uploadedImage ? 'Using custom uploaded photo' : 'Using AI default image'}
+                          {selectedImageProduct.uploadedImage ? 'Using custom uploaded photo' : 'Using standard studio photo'}
                         </p>
                       </div>
                     </div>
@@ -839,7 +947,7 @@ export const AdminDashboard: React.FC = () => {
                           className="hidden"
                           onChange={(e) => {
                             if (e.target.files?.[0]) {
-                              handleFileUploadSimulation(e.target.files[0]);
+                              handleProductImageUpload(e.target.files[0]);
                             }
                           }}
                         />
@@ -862,7 +970,7 @@ export const AdminDashboard: React.FC = () => {
                               setCustomImageUrlInput('');
                             }
                           }}
-                          className="bg-[#111111] hover:bg-neutral-800 text-white text-xs font-bold px-4 rounded-xl transition-colors shrink-0"
+                          className="bg-[#111111] hover:bg-neutral-800 text-white text-xs font-bold px-4 rounded-xl transition-colors shrink-0 cursor-pointer"
                         >
                           Set Image URL
                         </button>
@@ -1256,6 +1364,12 @@ export const AdminDashboard: React.FC = () => {
               </div>
             </div>
           )}
+
+          {/* TAB 8: BRANCHES & HUBS */}
+          {activeSubTab === 'branches' && <AdminBranchesTab />}
+
+          {/* TAB 9: LOGO & BRANDING */}
+          {activeSubTab === 'branding' && <AdminBrandingTab />}
         </main>
       </div>
 
@@ -1325,7 +1439,7 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">Default AI Image URL</label>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">Standard Studio Photo URL</label>
                 <input
                   type="url"
                   value={productForm.defaultImage}
@@ -1336,12 +1450,12 @@ export const AdminDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-neutral-700 mb-1">Custom Image URL (Optional override)</label>
+                <label className="block text-xs font-bold text-neutral-700 mb-1">Custom Photo URL (Optional override)</label>
                 <input
                   type="url"
                   value={productForm.uploadedImage}
                   onChange={(e) => setProductForm({ ...productForm, uploadedImage: e.target.value })}
-                  placeholder="Leave empty to use default AI image"
+                  placeholder="Leave empty to use standard studio photo"
                   className="w-full p-2.5 bg-neutral-50 rounded-xl border border-neutral-200 text-xs"
                 />
               </div>

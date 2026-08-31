@@ -11,12 +11,14 @@ import {
 } from 'lucide-react';
 
 export const ContactSection: React.FC = () => {
-  const { businessSettings, showToast } = useStore();
+  const { businessSettings, deliverySettings, showToast } = useStore();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('General Inquiry');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  const branches = deliverySettings.pickupLocations || [];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,25 +94,36 @@ export const ContactSection: React.FC = () => {
 
             {/* Kigali Kitchen Locations */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-neutral-200/80 shadow-xs space-y-4">
-              <h2 className="text-lg font-black text-[#111111]">Kigali Branches</h2>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-black text-[#111111]">Kigali Branches</h2>
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-neutral-100 rounded-full text-neutral-600">
+                  {branches.filter((b) => b.isActive).length} Open
+                </span>
+              </div>
               <div className="space-y-3">
-                <div className="p-3 bg-neutral-50 rounded-2xl">
-                  <p className="font-bold text-sm text-[#111111]">Kimihurura Flagship Hub</p>
-                  <p className="text-xs text-neutral-500">KG 622 St, Plot 14 (Near Kigali Convention Centre)</p>
-                  <p className="text-[11px] text-[#F51B55] font-semibold mt-1">Open 10:00 AM - 11:30 PM Daily</p>
-                </div>
-
-                <div className="p-3 bg-neutral-50 rounded-2xl">
-                  <p className="font-bold text-sm text-[#111111]">Nyarutarama Cloud Kitchen</p>
-                  <p className="text-xs text-neutral-500">KG 9 Ave, Nyarutarama Plaza</p>
-                  <p className="text-[11px] text-[#F51B55] font-semibold mt-1">Open 10:30 AM - 11:00 PM Daily</p>
-                </div>
-
-                <div className="p-3 bg-neutral-50 rounded-2xl">
-                  <p className="font-bold text-sm text-[#111111]">Downtown CBD Express Hub</p>
-                  <p className="text-xs text-neutral-500">KN 4 Ave, Grand Pension Plaza Floor 1</p>
-                  <p className="text-[11px] text-[#F51B55] font-semibold mt-1">Open 09:30 AM - 09:30 PM</p>
-                </div>
+                {branches.map((branch) => (
+                  <div key={branch.id} className="p-3.5 bg-neutral-50 rounded-2xl border border-neutral-100 space-y-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-extrabold text-sm text-[#111111]">{branch.name}</p>
+                      <span
+                        className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full ${
+                          branch.isActive
+                            ? 'bg-emerald-100 text-emerald-800'
+                            : 'bg-neutral-200 text-neutral-600'
+                        }`}
+                      >
+                        {branch.isActive ? 'Active' : 'Closed'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-neutral-500">{branch.address}</p>
+                    <div className="flex items-center justify-between pt-1 text-[11px]">
+                      <span className="text-[#F51B55] font-semibold">{branch.operatingHours}</span>
+                      <a href={`tel:${branch.phone}`} className="font-mono text-neutral-600 hover:text-black font-medium">
+                        {branch.phone}
+                      </a>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   Utensils,
-  Flame,
+  Drumstick,
   Sandwich,
   Box,
   Layers,
@@ -15,7 +15,7 @@ import {
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'cat-all': <Utensils className="w-4 h-4" />,
-  'cat-chicken': <Flame className="w-4 h-4" />,
+  'cat-chicken': <Drumstick className="w-4 h-4" />,
   'cat-burgers': <Sandwich className="w-4 h-4" />,
   'cat-combos': <Box className="w-4 h-4" />,
   'cat-wraps': <Layers className="w-4 h-4" />,

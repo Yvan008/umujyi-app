@@ -435,7 +435,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           : item
       )
     );
-    showToast('Custom image removed. Displaying AI default image.', 'info');
+    showToast('Custom photo removed. Restored standard menu photo.', 'info');
   };
 
   const resetToDefaultProducts = () => {

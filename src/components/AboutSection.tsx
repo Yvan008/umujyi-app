@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Flame, ShieldCheck, Heart, Users, MapPin, Sparkles } from 'lucide-react';
+import { UtensilsCrossed, ShieldCheck, Heart, Users, MapPin, Sparkles } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
   const { setActiveTab } = useStore();
@@ -11,7 +11,7 @@ export const AboutSection: React.FC = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-1.5 bg-pink-100 text-[#F51B55] px-3.5 py-1 rounded-full text-xs font-black uppercase tracking-wider mb-3">
-            <Flame className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5" />
             <span>Our Rwandan Story</span>
           </div>
           <h1 className="text-3xl sm:text-5xl font-black text-[#111111] tracking-tight mb-4">

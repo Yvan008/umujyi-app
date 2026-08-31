@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore } from '../context/StoreContext';
-import { Flame, Phone, Mail, MapPin, Heart } from 'lucide-react';
+import { Phone, Mail, MapPin, Heart } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { setActiveTab, businessSettings, setSelectedCategory } = useStore();
@@ -11,13 +11,22 @@ export const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-neutral-800">
           {/* Col 1: Brand & Bio */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-xl bg-[#F51B55] flex items-center justify-center text-white shadow-md">
-                <Flame className="w-5 h-5 fill-white" />
-              </div>
-              <span className="text-2xl font-black tracking-tight text-white leading-none">
-                UMUJYI<span className="text-[#F51B55]">.</span> <span className="text-xs font-bold text-neutral-400">RWANDA</span>
-              </span>
+            <div className="flex items-center">
+              {businessSettings.logoUrl ? (
+                <img
+                  src={businessSettings.logoUrl}
+                  alt={businessSettings.name}
+                  className="h-10 max-w-[160px] object-contain brightness-0 invert"
+                />
+              ) : (
+                <span className="text-2xl sm:text-3xl font-black tracking-tight text-white leading-none">
+                  {businessSettings.logoText ? (
+                    businessSettings.logoText
+                  ) : (
+                    <>UMUJYI<span className="text-[#F51B55]">.</span></>
+                  )}
+                </span>
+              )}
             </div>
             <p className="text-neutral-400 text-xs sm:text-sm leading-relaxed max-w-sm">
               Kigali's premier fast-casual food delivery experience. Crispy marinated chicken, smash burgers, stone-baked pizza, and signature seasoned fries prepared fresh daily.

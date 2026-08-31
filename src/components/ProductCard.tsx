@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
 import { useStore } from '../context/StoreContext';
-import { Plus, Check, Flame, Sparkles } from 'lucide-react';
+import { Plus, Check, Sparkles, TrendingUp } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -12,7 +12,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
   const { addToCart } = useStore();
   const [isAdded, setIsAdded] = useState(false);
 
-  // Fallback logic: Uploaded image has priority, otherwise default AI image
+  // Fallback logic: Custom photo has priority, otherwise standard menu photo
   const displayImage = product.uploadedImage || product.defaultImage;
 
   const handleAdd = (e: React.MouseEvent) => {
@@ -50,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           {product.badge && (
             <span className="inline-flex items-center gap-1 bg-[#F51B55] text-white text-[11px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm">
-              {product.badge === 'HOT' && <Flame className="w-3 h-3" />}
+              {product.badge === 'HOT' && <TrendingUp className="w-3 h-3" />}
               {product.badge === 'NEW' && <Sparkles className="w-3 h-3" />}
               {product.badge}
             </span>

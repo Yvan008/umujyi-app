@@ -19,8 +19,8 @@ export interface Product {
   price: number; // in RWF
   categoryId: string;
   categoryName: string;
-  defaultImage: string; // AI generated default
-  uploadedImage?: string | null; // Admin override
+  defaultImage: string; // Standard high-res menu photo
+  uploadedImage?: string | null; // Custom photo override
   isAvailable: boolean;
   isFeatured: boolean;
   isPopular?: boolean;
@@ -134,6 +134,7 @@ export interface BusinessSettings {
   name: string;
   tagline: string;
   logoText: string;
+  logoUrl?: string | null;
   phone: string;
   supportEmail: string;
   address: string;

@@ -12,12 +12,6 @@ export const Hero: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Text & CTA Column */}
           <div className="lg:col-span-7 flex flex-col items-start text-left">
-            {/* Pill Tag */}
-            <div className="inline-flex items-center gap-2 bg-pink-100/80 border border-pink-200/60 px-3.5 py-1.5 rounded-full text-[#F51B55] text-xs font-extrabold tracking-wider uppercase mb-5 shadow-xs">
-              <Zap className="w-3.5 h-3.5 fill-[#F51B55]" />
-              <span>Kigali's #1 Fast Food Delivery</span>
-            </div>
-
             {/* Main Headline */}
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] tracking-tight leading-[1.08] mb-5">
               GOOD FOOD.<br />
@@ -95,13 +89,13 @@ export const Hero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right AI Food Platter Hero Image Container */}
+          {/* Right Signature Food Platter Hero Image Container */}
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               {/* Decorative background glow */}
               <div className="absolute -inset-2 bg-gradient-to-r from-[#F51B55]/15 to-amber-500/10 rounded-[36px] blur-2xl -z-10" />
 
-              {/* Main AI Hero Image */}
+              {/* Main Gourmet Hero Image */}
               <div className="relative aspect-[4/3] sm:aspect-[16/11] rounded-[32px] overflow-hidden shadow-2xl border-4 border-white bg-neutral-900">
                 <img
                   src={heroImg}
