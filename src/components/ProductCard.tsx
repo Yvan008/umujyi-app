@@ -71,7 +71,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
       </div>
 
       {/* Content Container with Consistent Height & Spacing */}
-      <div className="p-4 sm:p-5 flex flex-col flex-grow justify-between">
+      <div className="p-3 sm:p-5 flex flex-col flex-grow justify-between">
         <div>
           {/* Category Tag */}
           <p className="text-[11px] font-bold text-[#F51B55] uppercase tracking-wider mb-1">
@@ -81,7 +81,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
           {/* Product Name */}
           <h3
             onClick={() => onOpenDetail?.(product)}
-            className="font-bold text-base sm:text-lg text-[#111111] leading-snug mb-1.5 line-clamp-1 group-hover:text-[#F51B55] transition-colors cursor-pointer"
+            className="font-bold text-sm sm:text-lg text-[#111111] leading-snug mb-1.5 line-clamp-1 group-hover:text-[#F51B55] transition-colors cursor-pointer"
             title={product.name}
           >
             {product.name}
@@ -94,10 +94,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
         </div>
 
         {/* Bottom Price & Add Action */}
-        <div className="pt-2 border-t border-neutral-100 flex items-center justify-between gap-2 mt-auto">
+        <div className="pt-2 border-t border-neutral-100 flex flex-wrap items-center justify-between gap-2 mt-auto">
           <div className="flex flex-col">
             <span className="text-[10px] text-neutral-400 font-medium uppercase tracking-tight">Price</span>
-            <span className="font-extrabold text-base sm:text-lg text-[#111111]">
+            <span className="font-extrabold text-sm sm:text-lg text-[#111111]">
               RWF {product.price.toLocaleString()}
             </span>
           </div>
@@ -106,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onOpenDetail 
             id={`btn-add-${product.id}`}
             onClick={handleAdd}
             disabled={!product.isAvailable}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm ${
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl font-bold text-[11px] sm:text-sm flex flex-1 sm:flex-none items-center justify-center gap-1.5 transition-all duration-200 active:scale-95 shadow-sm ${
               isAdded
                 ? 'bg-emerald-600 text-white shadow-emerald-200'
                 : !product.isAvailable
